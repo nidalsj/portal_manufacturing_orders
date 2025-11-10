@@ -2,6 +2,7 @@ from odoo import http, _
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.exceptions import AccessError, MissingError
+from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 
 class PortalManufacturingOrders(CustomerPortal):
 
@@ -17,8 +18,8 @@ class PortalManufacturingOrders(CustomerPortal):
                 domain = ['|', ('name', 'ilike', search), ('product_id', 'ilike', search)]
         return domain
 
-    @http.route(['/my/manufacturing'], type='http', auth="user", website=True)
-    def portal_my_manufacturing_orders(self, sortby=None, filterby=None, search=None, search_in='all', **kw):
+    @http.route(['/my/manufacturing', '/my/manufacturing/page/<int:page>'], type='http', auth="user", website=True)
+    def portal_my_manufacturing_orders(self, page=1, sortby=None, filterby=None, search=None, search_in='all', **kw):
         values = self._prepare_portal_layout_values()
         ManufacturingOrder = request.env['mrp.production'].sudo()
         partner = request.env.user.partner_id
@@ -53,12 +54,25 @@ class PortalManufacturingOrders(CustomerPortal):
         }
         search_domain = self._prepare_manufacturing_orders_domain(search, search_in)
         domain += search_domain
-        manufacturing_orders = ManufacturingOrder.search(domain, order=order)
+
+        manufacturing_order_count = ManufacturingOrder.search_count(domain)
+        items_per_page = 20
+
+        pager = portal_pager(
+            url="/my/manufacturing",
+            url_args={'sortby': sortby, 'filterby': filterby, 'search': search, 'search_in': search_in},
+            total=manufacturing_order_count,
+            page=page,
+            step=items_per_page
+        )
+
+        manufacturing_orders = ManufacturingOrder.search(domain, order=order, limit=items_per_page, offset=pager['offset'])
 
         values.update({
             'manufacturing_orders': manufacturing_orders,
             'page_name': 'manufacturing_orders',
             'default_url': '/my/manufacturing',
+            'pager': pager,
             'searchbar_sortings': searchbar_sortings,
             'sortby': sortby,
             'searchbar_filters': searchbar_filters,
@@ -67,7 +81,7 @@ class PortalManufacturingOrders(CustomerPortal):
             'search_in': search_in,
             'search': search,
         })
-        
+
         return request.render("portal_manufacturing_orders.portal_manufacturing_list", values)
     
     @http.route(['/my/manufacturing/<int:order_id>'], type='http', auth="user", website=True)

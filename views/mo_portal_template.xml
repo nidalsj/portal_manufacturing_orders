@@ -56,12 +56,12 @@
                             <t t-out="mo.product_uom_id.name"/>
                         </td>
                         <td class="text-center">
-                            <span t-if="mo.state == 'draft'">Draft</span>
-                            <span t-if="mo.state == 'confirmed'">Confirmed</span>
-                            <span t-if="mo.state == 'progress'">In Progress</span>
-                            <span t-if="mo.state == 'to_close'">To Close</span>
-                            <span t-if="mo.state == 'done'">Done</span>
-                            <span t-if="mo.state == 'cancel'">Cancelled</span>
+                            <span t-if="mo.state == 'draft'" class="badge bg-secondary">Draft</span>
+                            <span t-if="mo.state == 'confirmed'" class="badge bg-info">Confirmed</span>
+                            <span t-if="mo.state == 'progress'" class="badge bg-primary">In Progress</span>
+                            <span t-if="mo.state == 'to_close'" class="badge bg-warning">To Close</span>
+                            <span t-if="mo.state == 'done'" class="badge bg-success">Done</span>
+                            <span t-if="mo.state == 'cancel'" class="badge bg-danger">Cancelled</span>
                         </td>
                     </tr>
                 </t>
