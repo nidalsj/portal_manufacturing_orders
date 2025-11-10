@@ -72,65 +72,80 @@
 
     <!-- form view -->
     <template id="portal_manufacturing_order_page" name="Manufacturing Order Portal">
-        <t t-call="portal.portal_layout">
-            <t t-set="o_portal_fullwidth_alert" groups="mrp.group_mrp_user">
-                <t t-call="portal.portal_back_in_edit_mode">
-                    <t t-set="backend_url"
-                        t-value="'/web#model=%s&amp;id=%s&amp;action=%s&amp;view_type=form' % (manufacturing_order._name, manufacturing_order.id, manufacturing_order.env.ref('mrp.mrp_production_action').id)" />
-                </t>
+    <t t-call="portal.portal_layout">
+        <t t-set="o_portal_fullwidth_alert" groups="mrp.group_mrp_user">
+            <t t-call="portal.portal_back_in_edit_mode">
+                <t t-set="backend_url"
+                    t-value="'/web#model=%s&amp;id=%s&amp;action=%s&amp;view_type=form' % (manufacturing_order._name, manufacturing_order.id, manufacturing_order.env.ref('mrp.mrp_production_action').id)" />
             </t>
+        </t>
 
-            <div id="optional_placeholder"></div>
-
-            <div class="container">
-                <div class="card mt-3">
-                    <div class="card-header bg-white">
-                        <div class="row align-items-center">
-                            <div class="col-12 col-md-8">
-                                <h4 class="mb-0">
-                                    <t t-out="manufacturing_order.name" />
-                                </h4>
-                            </div>
-                            <div class="col-12 col-md-4 text-end">
-                                <h4 class="mb-0">
-                                    <span t-if="manufacturing_order.state == 'cancel'">Cancelled</span>
-                                    <span t-if="manufacturing_order.state == 'done'">Done</span>
-                                    <span t-if="manufacturing_order.state == 'progress'">In Progress</span>
-                                    <span t-if="manufacturing_order.state == 'confirmed'">Confirmed</span>
-                                    <span t-if="manufacturing_order.state == 'draft'">Draft</span>
-                                    <span t-if="manufacturing_order.state == 'to_close'">To Close</span>
-                                </h4>
-                            </div>
+        <div class="container">
+            <div class="card mt-3 shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="row align-items-center">
+                        <div class="col-12 col-md-8">
+                            <h4 class="mb-0">
+                                <t t-out="manufacturing_order.name"/>
+                            </h4>
                         </div>
-                    </div>
-
-                    <div class="card-body">
-                        <div class="row mb-4">
-                            <div class="col-12 col-md-6">
-                                <strong>Product</strong>
-                                <br />
-                                <span t-field="manufacturing_order.product_id" />
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <strong>Quantity to Produce</strong>
-                                <br />
-                                <span t-field="manufacturing_order.product_qty" />
-                                <span t-field="manufacturing_order.product_uom_id" />
-                            </div>
+                        <div class="col-12 col-md-4 text-end">
+                            <span t-if="manufacturing_order.state == 'cancel'">Cancelled</span>
+                            <span t-if="manufacturing_order.state == 'done'">Done</span>
+                            <span t-if="manufacturing_order.state == 'progress'">In Progress</span>
+                            <span t-if="manufacturing_order.state == 'confirmed'">Confirmed</span>
+                            <span t-if="manufacturing_order.state == 'draft'">Draft</span>
+                            <span t-if="manufacturing_order.state == 'to_close'">To Close</span>
                         </div>
                     </div>
                 </div>
-                <!-- chatter -->
-                <hr/>
-                <div id="manufacturing_order_communication">
-                    <h3>Communication history</h3>
-                    <t t-call="portal.message_thread">
-                        <t t-set="object" t-value="manufacturing_order"/>
-                    </t>
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <strong>Product</strong><br/>
+                            <span t-field="manufacturing_order.product_id"/>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <strong>BOM Used</strong><br/>
+                            <span t-field="manufacturing_order.bom_id"/>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <strong>Quantity to Produce</strong><br/>
+                            <span t-field="manufacturing_order.product_qty"/>
+                            <span t-field="manufacturing_order.product_uom_id"/>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <strong>Quantity Produced</strong><br/>
+                            <span t-field="manufacturing_order.qty_produced"/>
+                            <span t-field="manufacturing_order.product_uom_id"/>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <strong>Components Status</strong><br/>
+                            <span t-field="manufacturing_order.components_availability"/>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <strong>Responsible</strong><br/>
+                            <span t-field="manufacturing_order.user_id"/>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </t>
-    </template>
+            <!-- chatter -->
+            <hr class="my-4"/>
+            <div id="manufacturing_order_communication">
+                <h3>Communication History</h3>
+                <t t-call="portal.message_thread">
+                    <t t-set="object" t-value="manufacturing_order"/>
+                </t>
+            </div>
+        </div>
+    </t>
+</template>
 
 
 </odoo>
