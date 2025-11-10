@@ -4,13 +4,133 @@
     <template id="portal_my_home_inherit" inherit_id="portal.portal_my_home">
         <xpath expr="//div[@id='portal_client_category']" position="inside">
             <t t-call="portal.portal_docs_entry">
-                <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'"/>
+                <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'" />
                 <t t-set="title">Manufacturing Orders</t>
                 <t t-set="text">Track Manufacturing Orders</t>
-                <t t-set="url" t-value="'/my/manufacturing'"/>
-                <t t-set="config_card" t-value="True"/>
+                <t t-set="url" t-value="'/my/manufacturing'" />
+                <t t-set="config_card" t-value="True" />
             </t>
         </xpath>
     </template>
+
+    <template id="portal_breadcrumbs" inherit_id="portal.portal_breadcrumbs" priority="20">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'manufacturing_orders'" class="breadcrumb-item">
+                Manufacturing Orders
+            </li>
+        </xpath>
+    </template>
+
+    <!-- list view -->
+    <template id="portal_manufacturing_list" name="My Manufacturing Orders">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Manufacturing Orders</t>
+            </t>
+
+            <div t-if="not manufacturing_orders" class="alert alert-warning" role="alert">
+                There are currently no Manufacturing Orders
+            </div>
+
+            <t t-if="manufacturing_orders" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>MO Number</th>
+                        <th class="text-start">Product</th>
+                        <th class="text-end">Quantity</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <t t-foreach="manufacturing_orders" t-as="mo">
+                    <tr>
+                        <td>
+                            <a t-att-href="'/my/manufacturing/%s' % mo.id">
+                                <t t-out="mo.name"/>
+                            </a>
+                        </td>
+                        <td><t t-out="mo.product_id.display_name"/></td>
+                        <td class="text-end">
+                            <t t-out="mo.product_qty"/> 
+                            <t t-out="mo.product_uom_id.name"/>
+                        </td>
+                        <td class="text-center">
+                            <span t-if="mo.state == 'draft'">Draft</span>
+                            <span t-if="mo.state == 'confirmed'">Confirmed</span>
+                            <span t-if="mo.state == 'progress'">In Progress</span>
+                            <span t-if="mo.state == 'to_close'">To Close</span>
+                            <span t-if="mo.state == 'done'">Done</span>
+                            <span t-if="mo.state == 'cancel'">Cancelled</span>
+                        </td>
+                    </tr>
+                </t>
+            </t>
+        </t>
+    </template>
+
+
+    <!-- form view -->
+    <template id="portal_manufacturing_order_page" name="Manufacturing Order Portal">
+        <t t-call="portal.portal_layout">
+            <t t-set="o_portal_fullwidth_alert" groups="mrp.group_mrp_user">
+                <t t-call="portal.portal_back_in_edit_mode">
+                    <t t-set="backend_url"
+                        t-value="'/web#model=%s&amp;id=%s&amp;action=%s&amp;view_type=form' % (manufacturing_order._name, manufacturing_order.id, manufacturing_order.env.ref('mrp.mrp_production_action').id)" />
+                </t>
+            </t>
+
+            <div id="optional_placeholder"></div>
+
+            <div class="container">
+                <div class="card mt-3">
+                    <div class="card-header bg-white">
+                        <div class="row align-items-center">
+                            <div class="col-12 col-md-8">
+                                <h4 class="mb-0">
+                                    <t t-out="manufacturing_order.name" />
+                                </h4>
+                            </div>
+                            <div class="col-12 col-md-4 text-end">
+                                <h4 class="mb-0">
+                                    <span t-if="manufacturing_order.state == 'cancel'">Cancelled</span>
+                                    <span t-if="manufacturing_order.state == 'done'">Done</span>
+                                    <span t-if="manufacturing_order.state == 'progress'">In Progress</span>
+                                    <span t-if="manufacturing_order.state == 'confirmed'">Confirmed</span>
+                                    <span t-if="manufacturing_order.state == 'draft'">Draft</span>
+                                    <span t-if="manufacturing_order.state == 'to_close'">To Close</span>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-12 col-md-6">
+                                <strong>Product</strong>
+                                <br />
+                                <span t-field="manufacturing_order.product_id" />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <strong>Quantity to Produce</strong>
+                                <br />
+                                <span t-field="manufacturing_order.product_qty" />
+                                <span t-field="manufacturing_order.product_uom_id" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- chatter -->
+                <hr/>
+                <div id="manufacturing_order_communication">
+                    <h3>Communication history</h3>
+                    <t t-call="portal.message_thread">
+                        <t t-set="object" t-value="manufacturing_order"/>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
 
 </odoo>
