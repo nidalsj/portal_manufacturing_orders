@@ -20,21 +20,20 @@ class PortalManufacturingOrders(CustomerPortal):
     @http.route(['/my/manufacturing'], type='http', auth="user", website=True)
     def portal_my_manufacturing_orders(self, sortby=None, filterby=None, search=None, search_in='all', **kw):
         values = self._prepare_portal_layout_values()
-        ManufacturingOrder = request.env['mrp.production']
-        
+        ManufacturingOrder = request.env['mrp.production'].sudo()
+        partner = request.env.user.partner_id
+        domain = [('message_partner_ids', 'in', [partner.id])]
+
         # Sort
         searchbar_sortings = {
             'date': {'label': _('Newest'), 'order': 'create_date desc'},
             'name': {'label': _('Name'), 'order': 'name'},
             'state': {'label': _('Status'), 'order': 'state'},
         }
-        
-        # Default sort
-        if not sortby:
-            sortby = 'date'
+        sortby = sortby or 'date'
         order = searchbar_sortings[sortby]['order']
 
-        # Filter 
+        # Filter
         searchbar_filters = {
             'all': {'label': _('All'), 'domain': []},
             'draft': {'label': _('Draft'), 'domain': [('state', '=', 'draft')]},
@@ -43,11 +42,8 @@ class PortalManufacturingOrders(CustomerPortal):
             'to_close': {'label': _('To Close'), 'domain': [('state', '=', 'to_close')]},
             'done': {'label': _('Done'), 'domain': [('state', '=', 'done')]},
         }
-        
-        # Default filter
-        if not filterby:
-            filterby = 'all'
-        domain = searchbar_filters[filterby]['domain']
+        filterby = filterby or 'all'
+        domain += searchbar_filters[filterby]['domain']
 
         # Search
         searchbar_inputs = {
