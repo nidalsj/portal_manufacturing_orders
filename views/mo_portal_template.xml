@@ -13,15 +13,23 @@
         </xpath>
     </template>
 
-    <template id="portal_breadcrumbs" inherit_id="portal.portal_breadcrumbs" priority="20">
+    <template id="portal_breadcrumbs_manufacturing" inherit_id="portal.portal_breadcrumbs" priority="20">
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
-            <li t-if="page_name == 'manufacturing_orders'" class="breadcrumb-item">
+
+            <li t-if="page_name == 'manufacturing_orders'" class="breadcrumb-item active">
                 Manufacturing Orders
             </li>
+            <li t-if="manufacturing_order" class="breadcrumb-item">
+                <a t-attf-href="/my/manufacturing?{{ keep_query() }}">Manufacturing Orders</a>
+            </li>
+            <li t-if="manufacturing_order" class="breadcrumb-item active">
+                <t t-esc="manufacturing_order.name"/>
+            </li>
+
         </xpath>
     </template>
 
-    <!-- list view -->
+    <!-- List View -->
     <template id="portal_manufacturing_list" name="My Manufacturing Orders">
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
@@ -70,82 +78,139 @@
     </template>
 
 
-    <!-- form view -->
+    <!-- Form View -->
     <template id="portal_manufacturing_order_page" name="Manufacturing Order Portal">
-    <t t-call="portal.portal_layout">
-        <t t-set="o_portal_fullwidth_alert" groups="mrp.group_mrp_user">
-            <t t-call="portal.portal_back_in_edit_mode">
-                <t t-set="backend_url"
-                    t-value="'/web#model=%s&amp;id=%s&amp;action=%s&amp;view_type=form' % (manufacturing_order._name, manufacturing_order.id, manufacturing_order.env.ref('mrp.mrp_production_action').id)" />
-            </t>
-        </t>
-
-        <div class="container">
-            <div class="card mt-3 shadow-sm">
-                <div class="card-header bg-white">
-                    <div class="row align-items-center">
-                        <div class="col-12 col-md-8">
-                            <h4 class="mb-0">
-                                <t t-out="manufacturing_order.name"/>
-                            </h4>
-                        </div>
-                        <div class="col-12 col-md-4 text-end">
-                            <span t-if="manufacturing_order.state == 'cancel'">Cancelled</span>
-                            <span t-if="manufacturing_order.state == 'done'">Done</span>
-                            <span t-if="manufacturing_order.state == 'progress'">In Progress</span>
-                            <span t-if="manufacturing_order.state == 'confirmed'">Confirmed</span>
-                            <span t-if="manufacturing_order.state == 'draft'">Draft</span>
-                            <span t-if="manufacturing_order.state == 'to_close'">To Close</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-12 col-md-6">
-                            <strong>Product</strong><br/>
-                            <span t-field="manufacturing_order.product_id"/>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <strong>BOM Used</strong><br/>
-                            <span t-field="manufacturing_order.bom_id"/>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12 col-md-6">
-                            <strong>Quantity to Produce</strong><br/>
-                            <span t-field="manufacturing_order.product_qty"/>
-                            <span t-field="manufacturing_order.product_uom_id"/>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <strong>Quantity Produced</strong><br/>
-                            <span t-field="manufacturing_order.qty_produced"/>
-                            <span t-field="manufacturing_order.product_uom_id"/>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12 col-md-6">
-                            <strong>Components Status</strong><br/>
-                            <span t-field="manufacturing_order.components_availability"/>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <strong>Responsible</strong><br/>
-                            <span t-field="manufacturing_order.user_id"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- chatter -->
-            <hr class="my-4"/>
-            <div id="manufacturing_order_communication">
-                <h3>Communication History</h3>
-                <t t-call="portal.message_thread">
-                    <t t-set="object" t-value="manufacturing_order"/>
+        <t t-call="portal.portal_layout">
+            <t t-set="o_portal_fullwidth_alert" groups="mrp.group_mrp_user">
+                <t t-call="portal.portal_back_in_edit_mode">
+                    <t t-set="backend_url"
+                        t-value="'/web#model=%s&amp;id=%s&amp;action=%s&amp;view_type=form' % (manufacturing_order._name, manufacturing_order.id, manufacturing_order.env.ref('mrp.mrp_production_action').id)" />
                 </t>
-            </div>
-        </div>
-    </t>
-</template>
+            </t>
 
+            <div class="container mt-4 o_portal_manufacturing">
+                <div class="row">
+                    <!-- Sidebar -->
+                    <t t-call="portal.portal_record_sidebar">
+                        <t t-set="classes" t-value="'d-print-none col-lg-3 col-xl-4'"/>
+
+                        <t t-set="title">
+                            <h4 class="mb-0 text-primary">
+                                <t t-esc="manufacturing_order.name"/>
+                            </h4>
+                            <span class="badge bg-secondary mt-1" t-esc="manufacturing_order.state"/>
+                        </t>
+
+                        <t t-set="entries">
+                            <div class="d-flex flex-column gap-3 mt-3">
+                                <div>
+                                    <strong>Product:</strong><br/>
+                                    <t t-esc="manufacturing_order.product_id.display_name"/>
+                                </div>
+                                <div>
+                                    <strong>Quantity to Produce:</strong><br/>
+                                    <t t-esc="manufacturing_order.product_qty"/> 
+                                    <t t-esc="manufacturing_order.product_uom_id.name"/>
+                                </div>
+                                <div>
+                                    <strong>Produced:</strong><br/>
+                                    <t t-esc="manufacturing_order.qty_produced"/>
+                                </div>
+                                <div>
+                                    <strong>Planned Start:</strong><br/>
+                                    <t t-if="manufacturing_order.date_start">
+                                        <t t-esc="manufacturing_order.date_start"/>
+                                    </t>
+                                    <t t-else="">Date not set</t>
+                                </div>
+                                <div>
+                                    <strong>Planned Finish:</strong><br/>
+                                    <t t-if="manufacturing_order.date_finished">
+                                        <t t-esc="manufacturing_order.date_finished"/>
+                                    </t>
+                                    <t t-else="">Date not set</t>
+                                </div>
+                                <div>
+                                    <strong>Responsible:</strong><br/>
+                                    <t t-esc="manufacturing_order.user_id.name"/>
+                                </div>
+
+                                <a class="btn btn-secondary d-block mt-2"
+                                t-att-href="'/web#model=%s&amp;id=%s&amp;view_type=form' % (manufacturing_order._name, manufacturing_order.id)">
+                                    <i class="fa fa-external-link"/> Open in Backend
+                                </a>
+                            </div>
+                        </t>
+                    </t>
+
+                    <!-- Main Content -->
+                    <div class="col-lg-9 col-xl-8">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h3 class="card-title">
+                                    Manufacturing Order - <t t-esc="manufacturing_order.name"/>
+                                </h3>
+                                <hr/>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Product:</strong><br/>
+                                        <t t-esc="manufacturing_order.product_id.display_name"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Status:</strong><br/>
+                                        <span class="badge bg-info" t-esc="manufacturing_order.state"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Quantity:</strong><br/>
+                                        <t t-esc="manufacturing_order.product_qty"/> 
+                                        <t t-esc="manufacturing_order.product_uom_id.name"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Produced:</strong><br/>
+                                        <t t-esc="manufacturing_order.qty_produced"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Components -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h4>Components Used</h4>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Component</th>
+                                            <th>Quantity</th>
+                                            <th>UoM</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="manufacturing_order.move_raw_ids" t-as="move">
+                                            <td><t t-esc="move.product_id.display_name"/></td>
+                                            <td><t t-esc="move.product_uom_qty"/></td>
+                                            <td><t t-esc="move.product_uom.name"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Chatter -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h4>Communication History</h4>
+                                <t t-call="portal.message_thread">
+                                    <t t-set="object" t-value="manufacturing_order"/>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
 
 </odoo>

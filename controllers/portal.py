@@ -98,3 +98,35 @@ class PortalManufacturingOrders(CustomerPortal):
         
         return request.render("portal_manufacturing_orders.portal_manufacturing_order_page", values)
     
+    @http.route(['/my/manufacturing/<int:order_id>/pdf'], type='http', auth="user", website=True)
+    def portal_my_manufacturing_order_pdf(self, order_id, access_token=None, **kw):
+        try:
+            order_sudo = self._document_check_access('mrp.production', order_id, access_token)
+        except (AccessError, MissingError):
+            return request.redirect('/my')
+
+        pdf = request.env['ir.actions.report'].sudo()._render_qweb_pdf('mrp.action_report_mrpproduction', [order_sudo.id])[0]
+        pdfhttpheaders = [
+            ('Content-Type', 'application/pdf'),
+            ('Content-Length', len(pdf)),
+        ]
+        return request.make_response(pdf, headers=pdfhttpheaders)
+    
+    @http.route(['/my/manufacturing/<int:order_id>/print'], type='http', auth='user', website=True)
+    def portal_print_production_order(self, order_id, **kw):
+        """Allow portal users to print/download the Production Order as PDF."""
+        order_sudo = request.env['mrp.production'].sudo().browse(order_id)
+        if not order_sudo.exists():
+            return request.not_found()
+
+        if request.env.user.partner_id not in order_sudo.message_partner_ids:
+            return request.redirect('/my')
+
+        pdf = request.env.ref('mrp.action_report_production_order')._render_qweb_pdf(order_sudo.id)[0]
+        pdfhttpheaders = [
+            ('Content-Type', 'application/pdf'),
+            ('Content-Length', len(pdf)),
+            ('Content-Disposition', f'attachment; filename="ProductionOrder_{order_sudo.name}.pdf"'),
+        ]
+        return request.make_response(pdf, headers=pdfhttpheaders)
+    
