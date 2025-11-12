@@ -70,3 +70,5 @@ It allows portal users or followers to view, search, and download details of Man
 
 ## 🖼️ Screenshots
 
+<img width="1919" height="940" alt="Image" src="https://github.com/user-attachments/assets/0aee7e08-2a30-424f-a63e-8d513b79c2eb" />
+<img width="1919" height="945" alt="Image" src="https://github.com/user-attachments/assets/543a596d-61e0-4dfe-855b-51e38dc177a9" />
