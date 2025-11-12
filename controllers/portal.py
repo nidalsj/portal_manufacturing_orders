@@ -1,8 +1,7 @@
 from odoo import http, _
 from odoo.http import request
-from odoo.addons.portal.controllers.portal import CustomerPortal
-from odoo.exceptions import AccessError, MissingError
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from odoo.exceptions import AccessError, MissingError
 
 class PortalManufacturingOrders(CustomerPortal):
 
@@ -97,20 +96,6 @@ class PortalManufacturingOrders(CustomerPortal):
         }
         
         return request.render("portal_manufacturing_orders.portal_manufacturing_order_page", values)
-    
-    @http.route(['/my/manufacturing/<int:order_id>/pdf'], type='http', auth="user", website=True)
-    def portal_my_manufacturing_order_pdf(self, order_id, access_token=None, **kw):
-        try:
-            order_sudo = self._document_check_access('mrp.production', order_id, access_token)
-        except (AccessError, MissingError):
-            return request.redirect('/my')
-
-        pdf = request.env['ir.actions.report'].sudo()._render_qweb_pdf('mrp.action_report_mrpproduction', [order_sudo.id])[0]
-        pdfhttpheaders = [
-            ('Content-Type', 'application/pdf'),
-            ('Content-Length', len(pdf)),
-        ]
-        return request.make_response(pdf, headers=pdfhttpheaders)
     
     @http.route(['/my/manufacturing/<int:order_id>/print'], type='http', auth='user', website=True)
     def portal_print_production_order(self, order_id, **kw):
