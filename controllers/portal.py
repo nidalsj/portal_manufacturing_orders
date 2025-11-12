@@ -114,7 +114,6 @@ class PortalManufacturingOrders(CustomerPortal):
     
     @http.route(['/my/manufacturing/<int:order_id>/print'], type='http', auth='user', website=True)
     def portal_print_production_order(self, order_id, **kw):
-        """Allow portal users to print/download the Production Order as PDF."""
         order_sudo = request.env['mrp.production'].sudo().browse(order_id)
         if not order_sudo.exists():
             return request.not_found()
@@ -122,11 +121,6 @@ class PortalManufacturingOrders(CustomerPortal):
         if request.env.user.partner_id not in order_sudo.message_partner_ids:
             return request.redirect('/my')
 
-        pdf = request.env.ref('mrp.action_report_production_order')._render_qweb_pdf(order_sudo.id)[0]
-        pdfhttpheaders = [
-            ('Content-Type', 'application/pdf'),
-            ('Content-Length', len(pdf)),
-            ('Content-Disposition', f'attachment; filename="ProductionOrder_{order_sudo.name}.pdf"'),
-        ]
-        return request.make_response(pdf, headers=pdfhttpheaders)
-    
+        pdf_url = f"/report/pdf/mrp.action_report_production_order/{order_sudo.id}"
+        return request.redirect(pdf_url)
+        

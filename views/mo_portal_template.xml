@@ -135,10 +135,12 @@
                                     <t t-esc="manufacturing_order.user_id.name"/>
                                 </div>
 
-                                <a class="btn btn-secondary d-block mt-2"
-                                t-att-href="'/web#model=%s&amp;id=%s&amp;view_type=form' % (manufacturing_order._name, manufacturing_order.id)">
-                                    <i class="fa fa-external-link"/> Open in Backend
+                                <a class="btn btn-secondary o_print_btn d-block"
+                                    t-att-href="'/my/manufacturing/%s/print' % manufacturing_order.id"
+                                    target="_blank">
+                                        <i class="fa fa-print"/> Print Production Order
                                 </a>
+    
                             </div>
                         </t>
                     </t>
