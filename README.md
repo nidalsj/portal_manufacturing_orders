@@ -19,6 +19,7 @@ It allows portal users or followers to view, search, and download details of Man
   - **Filter** by state: Draft, Confirmed, In Progress, To Close, or Done.
   - **Sort** by Date, Name, or Status.
 - Uses the standard Odoo portal layout for consistency.
+- Pagination — Added page navigation for large MO lists (e.g., 20 Orders per page).
 
 ### 📄 Detailed MO View
 - Displays a **form-style page** with key Manufacturing Order details:
@@ -66,3 +67,6 @@ It allows portal users or followers to view, search, and download details of Man
 2. Update the app list:
    ```bash
    odoo -u all
+
+## 🖼️ Screenshots
+
