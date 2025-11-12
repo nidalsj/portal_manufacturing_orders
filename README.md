@@ -64,9 +64,8 @@ It allows portal users or followers to view, search, and download details of Man
 ## ⚙️ Installation
 
 1. Copy this module into your Odoo **addons** directory.  
-2. Update the app list:
-   ```bash
-   odoo -u all
+2. Update the app list.
+3. Install the module.
 
 ## 🖼️ Screenshots
 
