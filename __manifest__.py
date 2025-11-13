@@ -6,7 +6,6 @@
     'license': 'LGPL-3',
     'depends': ['portal', 'mrp', 'website'],
     'data': [
-        'security/ir.model.access.csv',
         'views/mo_portal_template.xml',
     ],
     'application': False,
